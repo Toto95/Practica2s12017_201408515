@@ -1,13 +1,8 @@
 import os
-from flask import Flask
-
-app = Flask(__name__)
+from flask import Flask, request
 
 
-@app.route('/')
-def hello_world():
-    return 'Hello World!'
-
+app = Flask("WebServiceCorreos")
 
 # nodos para las estructuras
 class nodoCola:
@@ -17,8 +12,6 @@ class nodoCola:
 
     def __str__(self):
         return str(self.numero)
-
-
 class nodoLista:
     def __init__(self, numero, siguiente=None):
         self.numero = numero
@@ -26,8 +19,6 @@ class nodoLista:
 
     def __str__(self):
         return str(self.numero)
-
-
 class nodoCorreo:
     siguiente = None
     anterior = None
@@ -37,8 +28,6 @@ class nodoCorreo:
         self.siguiente
         self.anterior
         self.direccion = direcc
-
-
 class nodoMatriz:
     arriba = None
     abajo = None
@@ -56,8 +45,6 @@ class nodoMatriz:
         self.dominio = dom
         self.inicialDireccion = letra
         self.lista = listaAsociadaNodoMatriz()
-
-
 class nodoCabezaHorizontal:
     siguiente = None
     anterior = None
@@ -69,8 +56,6 @@ class nodoCabezaHorizontal:
         self.anterior = None
         self.domini = valor
         self.lista = listaAsociadaCabeceraHorizontal()
-
-
 class nodoCabezaVertical:
     siguiente = None
     anterior = None
@@ -82,8 +67,6 @@ class nodoCabezaVertical:
         self.anterior = None
         self.primerLetra = valor
         self.lista = listaAsociadaCabeceraVertical()
-
-
 # estructuras basicas
 class listaSimple:
     def __init__(self):
@@ -132,28 +115,32 @@ class listaSimple:
                 temporal2 = temporal
                 temporal = temporal.siguiente
                 contador = contador + 1
-
+    def obtenerHASH(self, objeto):
+        id = hash(objeto)
+        if int(id) < 0:
+            return str((-1 * id))
+        return str(id)
     def reporteLista(self):
         if self.cabeza == None:
             print "vacio"
             return
-        file = open("lista.dot", "w")
+        file = open("C:\Users\Ottoniel\Desktop\ytemporal\lista.dot", "w")
         file.write("digraph G{\n")
         temporal = self.cabeza
         while temporal != None:
-            file.write("nodo" + str(temporal) + "[label = \"" + str(
+            file.write("nodo" + self.obtenerHASH(temporal) + "[label = \"" + str(
                 temporal) + "\", style = filled, fillcolor = \"#FF4000\"]\n")
             if temporal.siguiente != None:
-                file.write("nodo" + str(temporal) + " -> nodo" + str(temporal.siguiente) + "\n")
+                file.write("nodo" + self.obtenerHASH(temporal) + " -> nodo" + self.obtenerHASH(temporal.siguiente) + "\n")
             temporal = temporal.siguiente
         file.write("}\n")
         file.close()
-        os.system("dot -Tpng lista.dot > lista.png")
+
 
     def buscar(self, numero):
         contador = 0
         if self.cabeza == None:
-            return
+            return "LA LISTA ESTA VACIA"
         temporal = self.cabeza
         while temporal != None:
             if temporal.numero == numero:
@@ -161,14 +148,16 @@ class listaSimple:
             temporal = temporal.siguiente
             contador = contador + 1
         return "NO SE ENCONTRO EL DATO"
-
-
 class pila:
     top = None
 
     def __init__(self):
         self.top = None
-
+    def obtenerHASH(self, objeto):
+        id = hash(objeto)
+        if int(id) < 0:
+            return str((-1 * id))
+        return str(id)
     def insertar(self, num):
         nuevo = nodoCola(num)
         if self.top == None:
@@ -182,7 +171,7 @@ class pila:
             return "Pila Vacia"
         temporal = self.top
         self.top = self.top.siguiente
-        return temporal.numero
+        return str(temporal.numero)
 
     def imprimirPila(self):
         if self.top == None:
@@ -197,20 +186,18 @@ class pila:
         if self.top == None:
             return
 
-        file = open("pila.dot", "w")
+        file = open("C:\Users\Ottoniel\Desktop\ytemporal\pila.dot", "w")
         file.write("digraph G{\n")
         temporal = self.top
         while temporal != None:
-            file.write("nodo" + str(temporal) + "[label = \"" + str(
+            file.write("nodo" + self.obtenerHASH(temporal) + "[label = \"" + str(
                 temporal) + "\", style = filled, fillcolor = \"#FF4000\"]\n")
             if temporal.siguiente != None:
-                file.write("nodo" + str(temporal) + " -> nodo" + str(temporal.siguiente) + "\n")
+                file.write("nodo" + self.obtenerHASH(temporal) + " -> nodo" + self.obtenerHASH(temporal.siguiente) + "\n")
             temporal = temporal.siguiente
         file.write("}\n")
         file.close()
-        os.system("dot -Tpng pila.dot > pila.png")
-
-
+        #os.system("dot -Tpng pila.dot > pila.png")
 class cola:
     cabeza = None
     cola = None
@@ -233,7 +220,7 @@ class cola:
             return "Cola vacia"
         temporal = self.cabeza
         self.cabeza = self.cabeza.siguiente
-        return temporal.numero
+        return str(temporal.numero)
 
     def mostrar(self):
         if self.cabeza == None:
@@ -243,26 +230,27 @@ class cola:
         while temporal != None:
             print temporal
             temporal = temporal.siguiente
-
+    def obtenerHASH(self, objeto):
+        id = hash(objeto)
+        if int(id) < 0:
+            return str((-1 * id))
+        return str(id)
     def reporteCola(self):
         if self.cabeza == None:
             return
-        file = open("cola.dot", "w")
+        file = open("C:\Users\Ottoniel\Desktop\ytemporal\cola.dot", "w")
         file.write("digraph G{\n")
         temporal = self.cabeza
         while temporal != None:
-            file.write("nodo" + str(temporal) + "[label = \"" + str(
+            file.write("nodo" + self.obtenerHASH(temporal) + "[label = \"" + str(
                 temporal) + "\", style = filled, fillcolor = \"#FF4000\"]\n")
             if temporal.siguiente != None:
-                file.write("nodo" + str(temporal) + " -> nodo" + str(temporal.siguiente) + "\n")
+                file.write("nodo" + self.obtenerHASH(temporal) + " -> nodo" + self.obtenerHASH(temporal.siguiente) + "\n")
             temporal = temporal.siguiente
         file.write("}\n")
         file.close()
-        os.system("dot -Tpng cola.dot > cola.png")
-
-
+        #os.system("dot -Tpng cola.dot > cola.png")
 # estructuras para la matriz
-
 class listaAsociadaNodoMatriz:
     def __init__(self):
         self.primero = None
@@ -302,8 +290,6 @@ class listaAsociadaNodoMatriz:
                     return
             else:
                 temporal = temporal.siguiente
-
-
 class listaAsociadaCabeceraHorizontal:
     def __init__(self):
         self.primero = None
@@ -360,8 +346,6 @@ class listaAsociadaCabeceraHorizontal:
                     return
             else:
                 temporal = temporal.abajo
-
-
 class listaAsociadaCabeceraVertical:
     def __init__(self):
         self.primero = None
@@ -420,8 +404,6 @@ class listaAsociadaCabeceraVertical:
                     return
             else:
                 temporal = temporal.abajo
-
-
 class listaCabecerasHorizontales:
     listaVertical = None
 
@@ -520,8 +502,6 @@ class listaCabecerasHorizontales:
                         aux.lista.insertar(nu)
                     aux = aux.abajo
             tm = tm.siguiente
-
-
 class listaCabecerasVerticales:
     concatenador = ""
     bandera = False
@@ -618,8 +598,6 @@ class listaCabecerasVerticales:
                 return True
             temporal = temporal.siguiente
         return False
-
-
 class matriz:
     def __init__(self):
         self.verticales = listaCabecerasVerticales()
@@ -667,7 +645,7 @@ class matriz:
             return
         cabeza = self.horizontales.primero
         lateral = self.verticales.primero
-        file = open("matriz.dot", "w")
+        file = open("C:\Users\Ottoniel\Desktop\ytemporal\matriz.dot", "w")
         file.write("digraph G{\n")
         file.write("nodoR[label=\"Inicio\", style = filled, fillcolor = \"#FF4000\", group = rr]\n")
         file.write("{rank = same; nodoR nodoc" + self.obtenerHASH(cabeza) + "}\n")
@@ -768,8 +746,91 @@ class matriz:
 
         file.write("}\n")
         file.close()
-        os.system("dot -Tpng matriz.dot > matriz.png")
+        #os.system("dot -Tpng matriz.dot > matriz.png")
+
+    def buscarPorLetra(self, letra):
+        concatenadora = " "
+        temporal = self.verticales.primero
+        while temporal!=None:
+            if temporal.primerLetra == letra:
+                aux = temporal.lista.primero
+                while aux!=None:
+                    aux2 = aux.lista.primero
+                    while aux2!= None:
+                        concatenadora = concatenadora + ","+aux2.direccion
+                        aux2 = aux2.siguiente
+                    aux = aux.derecha
+            temporal = temporal.siguiente
+        return concatenadora
+    def buscarPorDominio(self, dominio):
+        concatenadora = " "
+        temporal = self.horizontales.primero
+        while temporal != None:
+            if temporal.domini == dominio:
+                aux = temporal.lista.primero
+                while aux != None:
+                    aux2 = aux.lista.primero
+                    while aux2 != None:
+                        concatenadora = concatenadora + "," + aux2.direccion
+                        aux2 = aux2.siguiente
+                    aux = aux.abajo
+            temporal = temporal.siguiente
+        return concatenadora
+matri = matriz()
+stack = pila()
+fifo = cola()
+lista = listaSimple()
+
+@app.route('/metodoPrueba', methods= ['POST'])
+def hello_world():
+    parametro = str(request.form['parametro'])
+    return 'Hello World!'+str(parametro)+"Jose"
+
+@app.route('/insertarLista', methods= ['POST'])
+def insertaLista():
+    parametro = str(request.form['parametro'])
+    lista.agregar(parametro)
+    lista.reporteLista()
+    return "ya inserto"+ parametro
+
+
+@app.route('/eliminarLista', methods= ['POST'])
+def eliminarLista():
+    parametro = str(request.form['parametro'])
+    lista.eliminarPorIndice(int(parametro))
+    lista.reporteLista()
+    return "eliminando..."
+@app.route('/buscarLista', methods= ['POST'])
+def buscaLista():
+    parametro = str(request.form['parametro'])
+    return lista.buscar(parametro)
+
+@app.route('/queue', methods= ['POST'])
+def insertarCola():
+    parametro = str(request.form['parametro'])
+    fifo.agregar(int(parametro))
+    fifo.reporteCola()
+    return "ya lo inserto"
+@app.route('/dequeue', methods= ['POST'])
+def eliminarCola():
+    parametro = str(request.form['parametro'])
+    temporal = fifo.eliminar()
+    fifo.reporteCola()
+    return temporal
+
+@app.route('/push', methods= ['POST'])
+def insertarPila():
+    parametro = str(request.form['parametro'])
+    stack.insertar(int(parametro))
+    stack.reportePila()
+    return "ya lo inserto"
+@app.route('/pop', methods= ['POST'])
+def eliminaPila():
+    parametro = str(request.form['parametro'])
+    temporal = stack.pop()
+    stack.reportePila()
+    return temporal
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True, host= '0.0.0.0')
