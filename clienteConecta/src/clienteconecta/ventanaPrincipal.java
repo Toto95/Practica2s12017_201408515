@@ -68,6 +68,11 @@ public static OkHttpClient webClient = new OkHttpClient();
         });
 
         jButton4.setText("MATRIZ");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -116,14 +121,19 @@ public static OkHttpClient webClient = new OkHttpClient();
        pila p = new pila();
        p.setVisible(true);
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        matriz m = new matriz();
+        m.setVisible(true);
+    }//GEN-LAST:event_jButton4ActionPerformed
     public static String getString(String metodo, RequestBody formBody) {
 
         try {
-            URL url = new URL("http://0.0.0.0:5000/" + metodo);
-            Request request = new Request.Builder().url(url).post(formBody).build();
-            Response response = webClient.newCall(request).execute();//Aqui obtiene la respuesta en dado caso si hayas pues un return en python
-            String response_string = response.body().string();//y este seria el string de las respuesta
-            return response_string;
+            URL dire = new URL("http://0.0.0.0:5000/" + metodo);
+            Request pide = new Request.Builder().url(dire).post(formBody).build();
+            Response recibe = webClient.newCall(pide).execute();//Aqui obtiene la respuesta en dado caso si hayas pues un return en python
+            String cadenaDevuelta = recibe.body().string();//y este seria el string de las respuesta
+            return cadenaDevuelta;
         } catch (MalformedURLException ex) {
             //java.util.logging.Logger.getLogger(edd_lineal_nlineal.Conexion.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {

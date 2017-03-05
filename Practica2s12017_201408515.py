@@ -1,7 +1,4 @@
-import os
 from flask import Flask, request
-
-
 app = Flask("WebServiceCorreos")
 
 # nodos para las estructuras
@@ -262,6 +259,7 @@ class listaAsociadaNodoMatriz:
         if self.primero == None:
             self.primero = self.ultimo = nuevo
         else:
+            nuevo.anterior = self.ultimo
             nuevo.siguiente = None
             self.ultimo.siguiente = nuevo
             self.ultimo = nuevo
@@ -273,11 +271,11 @@ class listaAsociadaNodoMatriz:
         temporal = self.primero
         while temporal != None:
             if temporal.direccion == direccion:
-                if self.primero == temporal & temporal.siguiente != None:
+                if self.primero == temporal and temporal.siguiente != None:
                     self.primero.siguiente.anterior = None
                     self.primero = self.primero.siguiente
                     return
-                elif self.primero == temporal & temporal.siguiente == None:
+                elif self.primero == temporal and temporal.siguiente == None:
                     self.primero = self.ultimo = None
                     return
                 elif self.ultimo == temporal:
@@ -303,6 +301,7 @@ class listaAsociadaCabeceraHorizontal:
         if nuevo.inicialDireccion < self.primero.inicialDireccion:
             nuevo.abajo = self.primero
             nuevo.arriba = None
+            self.primero.arriba = nuevo
             self.primero = nuevo
             return
         elif nuevo.inicialDireccion > self.ultimo.inicialDireccion:
@@ -377,6 +376,7 @@ class listaAsociadaCabeceraVertical:
                     nuevo.derecha = temporal
                     temporal.izquierda.derecha = nuevo
                     temporal.izquierda = nuevo
+                    return
                 temporal = temporal.derecha
 
     # recibe como parametro x que es el dominio del correo
@@ -386,8 +386,8 @@ class listaAsociadaCabeceraVertical:
 
         temporal = self.primero
         while temporal != None:
-            if temporal.inicialDireccion == x:
-                if (self.primero == temporal and temporal.derecha != None):
+            if temporal.dominio == x:
+                if self.primero == temporal and temporal.derecha != None:
                     self.primero.derecha.izquierda = None
                     self.primero = self.primero.derecha
                     return
@@ -403,7 +403,7 @@ class listaAsociadaCabeceraVertical:
                     temporal.izquierda.derecha = temporal.derecha
                     return
             else:
-                temporal = temporal.abajo
+                temporal = temporal.derecha
 class listaCabecerasHorizontales:
     listaVertical = None
 
@@ -438,12 +438,12 @@ class listaCabecerasHorizontales:
                     nuevo.siguiente = temporal
                     temporal.anterior.siguiente = nuevo
                     temporal.anterior = nuevo
+                    return
                 temporal = temporal.siguiente
 
     def eliminar(self, dominio):
         if self.primero == None:
             return
-
         temporal = self.primero
         while temporal != None:
             if temporal.domini == dominio:
@@ -502,6 +502,33 @@ class listaCabecerasHorizontales:
                         aux.lista.insertar(nu)
                     aux = aux.abajo
             tm = tm.siguiente
+
+    def eliminarEnNodo(self, di, do):
+        bandera = False
+        if self.primero == None:
+            return
+        tm = self.primero
+        while tm != None:
+            if tm.domini == do:
+                aux = tm.lista.primero
+                while aux != None:
+                    if aux.inicialDireccion == di[0]:
+                        aux.lista.eliminar(di + do)
+                        print "elimino "+ di+ do
+                        if aux.lista.primero == None:
+                            bandera = True
+                    aux = aux.abajo
+            tm = tm.siguiente
+        return bandera
+
+    def noTieneNada(self, domin):
+        temporal = self.primero
+        while temporal != None:
+            if temporal.domini == domin:
+                if temporal.lista.primero == None:
+                    return True
+            temporal = temporal.siguiente
+        return False
 class listaCabecerasVerticales:
     concatenador = ""
     bandera = False
@@ -536,6 +563,7 @@ class listaCabecerasVerticales:
                     nuevo.siguiente = temporal
                     temporal.anterior.siguiente = nuevo
                     temporal.anterior = nuevo
+                    return
                 temporal = temporal.siguiente
 
     def eliminar(self, primerLetra):
@@ -598,24 +626,32 @@ class listaCabecerasVerticales:
                 return True
             temporal = temporal.siguiente
         return False
+
+    def noTieneNada(self, indice):
+        temporal = self.primero
+        while temporal != None:
+            if temporal.primerLetra == indice:
+                if temporal.lista.primero == None:
+                    return True
+            temporal = temporal.siguiente
+        return False
 class matriz:
     def __init__(self):
         self.verticales = listaCabecerasVerticales()
         self.horizontales = listaCabecerasHorizontales()
 
     def insertar(self, cad):
-        bandera1 = False
-        bandera2 = False
+
         pedasos = cad.split("@")
         dir = pedasos[0]
         do = "@" + pedasos[1]
         caracterUno = dir[0]
         if self.verticales.existeV(caracterUno) == False:
             self.verticales.insertar(caracterUno)
-            bandera1 = True
+
         if self.horizontales.existeH(do) == False:
             self.horizontales.insertar(do)
-            bandera2 = True
+
         if self.horizontales.existeNodoMatriz(do, caracterUno) == False:
             nodom = nodoMatriz(caracterUno, do)
             tm = self.horizontales.primero
@@ -630,8 +666,7 @@ class matriz:
                     tm2.lista.agregar(nodom)
                     break
                 tm2 = tm2.siguiente
-            bandera1 = False
-            bandera2 = False
+
         self.horizontales.insertarDirectoANodo(dir, do)
 
     def obtenerHASH(self, objeto):
@@ -639,6 +674,21 @@ class matriz:
         if int(id) < 0:
             return str((-1 * id))
         return str(id)
+
+    def buscarPorLetra(self, letra):
+        concatenadora = ""
+        temporal = self.verticales.primero
+        while temporal != None:
+            if temporal.primerLetra == letra:
+                aux = temporal.lista.primero
+                while aux != None:
+                    aux2 = aux.lista.primero
+                    while aux2 != None:
+                        concatenadora = concatenadora + "," + aux2.direccion
+                        aux2 = aux2.siguiente
+                    aux = aux.derecha
+            temporal = temporal.siguiente
+        return concatenadora
 
     def graficarMatriz(self):
         if self.horizontales.primero == None or self.verticales.primero == None:
@@ -653,13 +703,14 @@ class matriz:
         # graficando cabezas
         while cabeza != None:
 
-            file.write("nodoc" + self.obtenerHASH(
-                cabeza) + "[label = \"" + cabeza.domini + "\", style = filled, fillcolor = \"#FF4000\", group = r" + self.obtenerHASH(
-                cabeza) + "]\n")
+            file.write("nodoc" + self.obtenerHASH(cabeza) + "[label = \"" + cabeza.domini + "\", style = filled, fillcolor = \"#FF4000\", group = r" + self.obtenerHASH(cabeza) + "]\n")
             if cabeza.siguiente != None:
-                file.write("{rank = same; nodoc" + self.obtenerHASH(cabeza) + " nodoc" + self.obtenerHASH(
-                    cabeza.siguiente) + "}\n")
+                file.write("{rank = same; nodoc" + self.obtenerHASH(cabeza) + " nodoc" + self.obtenerHASH(cabeza.siguiente) + "}\n")
                 file.write("nodoc" + self.obtenerHASH(cabeza) + " -> nodoc" + self.obtenerHASH(cabeza.siguiente) + "\n")
+            if cabeza.anterior != None:
+                file.write("{rank = same; nodoc" + self.obtenerHASH(cabeza) + " nodoc" + self.obtenerHASH(
+                    cabeza.anterior) + "}\n")
+                file.write("nodoc" + self.obtenerHASH(cabeza) + " -> nodoc" + self.obtenerHASH(cabeza.anterior) + "\n")
             cabeza = cabeza.siguiente
         file.write("nodoR -> nodol" + self.obtenerHASH(lateral) + "\n")
         while lateral != None:
@@ -668,6 +719,9 @@ class matriz:
             if lateral.siguiente != None:
                 file.write(
                     "nodol" + self.obtenerHASH(lateral) + " -> nodol" + self.obtenerHASH(lateral.siguiente) + "\n")
+            if lateral.anterior != None:
+                file.write(
+                    "nodol" + self.obtenerHASH(lateral) + " -> nodol" + self.obtenerHASH(lateral.anterior) + "\n")
             lateral = lateral.siguiente
         cabeza = self.horizontales.primero
         while cabeza != None:
@@ -685,7 +739,7 @@ class matriz:
                         enMatriz) + "l" + self.obtenerHASH(enMatriz) + "\n")
                     while tm != None:
                         file.write("nodoS" + self.obtenerHASH(
-                            tm) + "[label = \"" + tm.direccion + "\", style = filled, fillcolor = \"#FF4000\"]\n")
+                            tm) + "[label = \"" + tm.direccion + "\", style = filled, fillcolor = \"#00FF00\"]\n")
                         if tm.siguiente != None:
                             file.write(
                                 "nodoS" + self.obtenerHASH(tm) + " -> nodoS" + self.obtenerHASH(tm.siguiente) + "\n")
@@ -730,38 +784,23 @@ class matriz:
         while lateral != None:
             enMatriz = lateral.lista.primero
             if lateral.lista.primero != None:
-                file.write("nodol" + self.obtenerHASH(lateral) + " -> " + "nodoc" + self.obtenerHASH(
-                    enMatriz) + "l" + self.obtenerHASH(enMatriz) + "\n")
-                file.write("{rank = same; " + "nodol" + self.obtenerHASH(lateral) + " " + "nodoc" + self.obtenerHASH(
-                    enMatriz) + "l" + self.obtenerHASH(enMatriz) + "}\n")
+                file.write("nodol" + self.obtenerHASH(lateral) + " -> " + "nodoc" + self.obtenerHASH(enMatriz) + "l" + self.obtenerHASH(enMatriz) + "\n")
+                file.write("nodoc" + self.obtenerHASH(enMatriz) + "l" + self.obtenerHASH(enMatriz)+ " -> " + "nodol" + self.obtenerHASH(lateral)  + "\n")
+                file.write("{rank = same; " + "nodol" + self.obtenerHASH(lateral) + " " + "nodoc" + self.obtenerHASH(enMatriz) + "l" + self.obtenerHASH(enMatriz) + "}\n")
             lateral = lateral.siguiente
         # file.write("}\n")
         cabeza = self.horizontales.primero
         while cabeza != None:
             enMatriz = cabeza.lista.primero
             if cabeza.lista.primero != None:
-                file.write("nodoc" + self.obtenerHASH(cabeza) + " -> nodoc" + self.obtenerHASH(
-                    enMatriz) + "l" + self.obtenerHASH(enMatriz) + "\n")
+                file.write("nodoc" + self.obtenerHASH(cabeza) + " -> nodoc" + self.obtenerHASH(enMatriz) + "l" + self.obtenerHASH(enMatriz) + "\n")
+                file.write("nodoc"+self.obtenerHASH(enMatriz) + "l" + self.obtenerHASH(enMatriz) + " -> " + "nodoc" + self.obtenerHASH(cabeza) + "\n")
             cabeza = cabeza.siguiente
 
         file.write("}\n")
         file.close()
         #os.system("dot -Tpng matriz.dot > matriz.png")
 
-    def buscarPorLetra(self, letra):
-        concatenadora = " "
-        temporal = self.verticales.primero
-        while temporal!=None:
-            if temporal.primerLetra == letra:
-                aux = temporal.lista.primero
-                while aux!=None:
-                    aux2 = aux.lista.primero
-                    while aux2!= None:
-                        concatenadora = concatenadora + ","+aux2.direccion
-                        aux2 = aux2.siguiente
-                    aux = aux.derecha
-            temporal = temporal.siguiente
-        return concatenadora
     def buscarPorDominio(self, dominio):
         concatenadora = " "
         temporal = self.horizontales.primero
@@ -776,6 +815,46 @@ class matriz:
                     aux = aux.abajo
             temporal = temporal.siguiente
         return concatenadora
+
+    def eliminar(self, cad):
+        pedasos = cad.split("@")
+        dir = pedasos[0]
+        do = "@" + pedasos[1]
+        caracterUno = dir[0]
+        if self.verticales.existeV(caracterUno) == False:
+            return " "
+
+        if self.horizontales.existeH(do) == False:
+            return " "
+
+        if self.horizontales.existeNodoMatriz(do, caracterUno) == False:
+            return " "
+        if self.horizontales.eliminarEnNodo(dir, do) == True:
+            # print "pasa eliminacion desde nodoMatriz"
+            temporal = self.horizontales.primero
+            while temporal != None:
+                if temporal.domini == do:
+                    #       print "entra eliminacion de la lista asociada a nodo horizontal"
+                    temporal.lista.eliminar(caracterUno)
+                    #      print"pasa eliminacion de la lista asociada a nodo horizontal"
+                    break
+                temporal = temporal.siguiente
+            if self.horizontales.noTieneNada(do) == True:
+                # print "entra a la eliminacion de nodo horizontal"
+                self.horizontales.eliminar(do)
+                # print"pasa eliminacion de nodo horizontal"
+            temporal2 = self.verticales.primero
+            while temporal2 != None:
+                if temporal2.primerLetra == caracterUno:
+                    #   print "entra eliminacion de la lista asociada a nodo vertical"
+                    temporal2.lista.eliminar(do)
+                    #  print "pasa eliminacion de la lista asociada a nodo vertical"
+                    break
+                temporal2 = temporal2.siguiente
+            if self.verticales.noTieneNada(caracterUno) == True:
+                # print "entra eliminacion de nodo vertical"
+                self.verticales.eliminar(caracterUno)
+                # print "pasa eliminacion de nodo vertical"
 matri = matriz()
 stack = pila()
 fifo = cola()
@@ -831,6 +910,26 @@ def eliminaPila():
     stack.reportePila()
     return temporal
 
+@app.route('/insertarMatriz', methods= ['POST'])
+def insertarMatriz():
+    parametro = str(request.form['parametro'])
+    matri.insertar(parametro)
+    matri.graficarMatriz()
+    return "Insertado"
+@app.route('/buscarPorLetra', methods= ['POST'])
+def buscarPorLetra():
+    parametro = str(request.form['parametro'])
+    return matri.buscarPorLetra(parametro)
+@app.route('/buscarPorDominio', methods= ['POST'])
+def buscarPorDominio():
+    parametro = str(request.form['parametro'])
+    return matri.buscarPorDominio(parametro)
+@app.route('/eliminarMatriz', methods= ['POST'])
+def eliminarMatriz():
+    parametro = str(request.form['parametro'])
+    matri.eliminar(parametro)
+    matri.graficarMatriz()
+    return "elimino"
 
 if __name__ == '__main__':
     app.run(debug=True, host= '0.0.0.0')

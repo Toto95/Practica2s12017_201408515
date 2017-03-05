@@ -8,6 +8,8 @@ package clienteconecta;
 import static clienteconecta.ventanaPrincipal.getString;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.RequestBody;
+import java.awt.Desktop;
+import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,6 +25,7 @@ public class matriz extends javax.swing.JFrame {
      */
     public matriz() {
         initComponents();
+        this.setDefaultCloseOperation(HIDE_ON_CLOSE);
     }
 
     /**
@@ -61,10 +64,25 @@ public class matriz extends javax.swing.JFrame {
         });
 
         jButton3.setText("BUSCAR LETRA");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jButton4.setText("BUSCAR DOMINIO");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         jButton5.setText("REPORTE");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -113,7 +131,21 @@ public class matriz extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        if(!this.jTextField2.getText().equals("")){
+        String parametro = this.jTextField2.getText();
+        RequestBody formBody = new FormEncodingBuilder()
+                .add("parametro", parametro)
+                .build();
+        String salida = getString("eliminarMatriz", formBody); 
+        String cmd = "cmd /c dot -Tpng C:\\Users\\Ottoniel\\Desktop\\ytemporal\\matriz.dot > C:\\Users\\Ottoniel\\Desktop\\ytemporal\\matriz.png";
+           try {
+               Process child = Runtime.getRuntime().exec(cmd);
+           } catch (IOException ex) {
+               Logger.getLogger(lista.class.getName()).log(Level.SEVERE, null, ex);
+           }
+         
+        this.jTextField2.setText("");
+       }// TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -122,7 +154,7 @@ public class matriz extends javax.swing.JFrame {
         RequestBody formBody = new FormEncodingBuilder()
                 .add("parametro", parametro)
                 .build();
-        String salida = getString("insertarLista", formBody); 
+        String salida = getString("insertarMatriz", formBody); 
         String cmd = "cmd /c dot -Tpng C:\\Users\\Ottoniel\\Desktop\\ytemporal\\matriz.dot > C:\\Users\\Ottoniel\\Desktop\\ytemporal\\matriz.png";
            try {
                Process child = Runtime.getRuntime().exec(cmd);
@@ -133,41 +165,62 @@ public class matriz extends javax.swing.JFrame {
         this.jTextField1.setText("");
        }
     }//GEN-LAST:event_jButton1ActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(matriz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(matriz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(matriz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(matriz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    private boolean esChar(String c){
+        try{
+            char cc = c.charAt(0);
+            return true;
+        }catch(Exception e){
+            return false;
         }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new matriz().setVisible(true);
-            }
-        });
     }
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        if(!this.jTextField3.getText().equals("") && esChar(this.jTextField3.getText())){
+        String parametro = this.jTextField3.getText();
+        RequestBody formBody = new FormEncodingBuilder()
+                .add("parametro", parametro)
+                .build();
+        String salida = getString("buscarPorLetra", formBody); 
+        System.out.println(salida);
+        String cmd = "cmd /c dot -Tpng C:\\Users\\Ottoniel\\Desktop\\ytemporal\\matriz.dot > C:\\Users\\Ottoniel\\Desktop\\ytemporal\\matriz.png";
+           try {
+               Process child = Runtime.getRuntime().exec(cmd);
+           } catch (IOException ex) {
+               Logger.getLogger(lista.class.getName()).log(Level.SEVERE, null, ex);
+           }
+         
+        this.jTextField3.setText("");
+       }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        if(!this.jTextField4.getText().equals("")){
+        String parametro = this.jTextField4.getText();
+        RequestBody formBody = new FormEncodingBuilder()
+                .add("parametro", parametro)
+                .build();
+        String salida = getString("buscarPorDominio", formBody); 
+        System.out.println(salida);
+        String cmd = "cmd /c dot -Tpng C:\\Users\\Ottoniel\\Desktop\\ytemporal\\matriz.dot > C:\\Users\\Ottoniel\\Desktop\\ytemporal\\matriz.png";
+           try {
+               Process child = Runtime.getRuntime().exec(cmd);
+           } catch (IOException ex) {
+               Logger.getLogger(lista.class.getName()).log(Level.SEVERE, null, ex);
+           }
+         
+        this.jTextField4.setText("");
+       }
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+            File f = new File("C:\\Users\\Ottoniel\\Desktop\\ytemporal\\matriz.png");
+    try {
+        Desktop.getDesktop().open(f);
+    } catch (IOException ex) {
+        Logger.getLogger(lista.class.getName()).log(Level.SEVERE, null, ex);
+    }                // TODO add your handling code here:
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
