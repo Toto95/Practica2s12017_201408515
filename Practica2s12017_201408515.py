@@ -318,6 +318,7 @@ class listaAsociadaCabeceraHorizontal:
                     nuevo.abajo = temporal
                     temporal.arriba.abajo = nuevo
                     temporal.arriba = nuevo
+                    return
                 temporal = temporal.abajo
 
     # recibe como parametro y que es la letra inicial de la direccion de correo
@@ -517,6 +518,7 @@ class listaCabecerasHorizontales:
                         print "elimino "+ di+ do
                         if aux.lista.primero == None:
                             bandera = True
+                            return bandera
                     aux = aux.abajo
             tm = tm.siguiente
         return bandera
